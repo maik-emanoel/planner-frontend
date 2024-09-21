@@ -1,23 +1,40 @@
 import { MapPin, Calendar, Settings2 } from 'lucide-react'
 import { Button } from '../../components/button'
+import { useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { api } from '../../libs/axios'
+
+import { dayjs } from '../../libs/dayjs'
+import { Trip } from '../../types'
 
 export function DestinationAndDatHeader() {
+  const { tripId } = useParams()
+  const [trip, setTrip] = useState<Trip | undefined>()
+
+  useEffect(() => {
+    api.get(`/trips/${tripId}`).then((response) => setTrip(response.data.trip))
+  }, [tripId])
+
+  const displayedDate = trip
+    ? `${dayjs(trip.starts_at).format('D [de] MMM')} até ${dayjs(trip.ends_at).format('D [de] MMM')}`
+    : null
+
   return (
     <div className="px-4 h-16 rounded-xl bg-zinc-900 shadow-shape flex items-center justify-between">
       <div className="flex items-center gap-2">
         <MapPin className="size-5 text-zinc-400" />
-        <span className="text-zinc-100">Florianópolis, Brasil</span>
+        <span className="text-zinc-100">{trip?.destination}</span>
       </div>
 
       <div className="flex items-center gap-5">
         <div className="flex items-center gap-2">
           <Calendar className="size-5 text-zinc-400" />
-          <span className="text-zinc-100">16 de agosto</span>
+          <span className="text-zinc-100">{displayedDate}</span>
         </div>
 
         <div className="w-px h-6 bg-zinc-800" />
 
-        <Button variant='secondary'>
+        <Button variant="secondary">
           <span className="whitespace-nowrap">Alterar local/data</span>
           <Settings2 className="size-5" />
         </Button>
